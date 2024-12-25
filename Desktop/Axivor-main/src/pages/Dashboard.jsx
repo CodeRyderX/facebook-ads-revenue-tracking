@@ -1,15 +1,36 @@
 import React from 'react'
-import { LuChartCandlestick, LuBell } from "react-icons/lu";
+import { useState } from 'react';
+import { LuChartCandlestick, LuBell, LuSave } from "react-icons/lu";
 import { FaListUl } from "react-icons/fa6";
 import { IoWalletOutline } from "react-icons/io5";
 import { PiHandDepositDuotone, PiHandWithdrawDuotone, PiListDashesDuotone } from "react-icons/pi";
 import { TrendingUp } from 'lucide-react';
 import { PiRankingLight } from "react-icons/pi";
 import { LiaBalanceScaleSolid } from "react-icons/lia";
+import CustomSelect from "@/components/CustomSelect";
+import { IoPieChartOutline } from "react-icons/io5";
+import { ImEmbed } from "react-icons/im";
+import { IoShareSocialOutline } from "react-icons/io5";
 
 
 
 function Dashboard() {
+
+  const options = [
+    { value: "option1", label: "Last 24 hrs" },
+    { value: "option2", label: "Last 1 week" },
+    { value: "option3", label: "Last month" },
+    { value: "option4", label: "Last 6 months" },
+    { value: "option5", label: "Last year" },
+    { value: "option6", label: "All time" },
+  ];
+
+  const [isActive, setIsActive] = useState(false);
+
+  const toggleButtonState = () => {
+    setIsActive(prevState => !prevState);
+  };
+
   return (
     <div className="w-full h-max flex items-center justify-center font-mona">
       <div className='div className=" w-[96%] md:w-[98%] h-[530px] flex flex-col bg-[#f0f0f0] rounded-xl items-center font-mona py-2 px-2'>
@@ -31,6 +52,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="w-[97%] h-max flex gap-4 justify-between pt-2">
+          {/* Left Side */}
           <div className=" w-[50%] h-max flex flex-col gap-3">
             {/* Top 2 */}
             <div className=" w-full h-max flex gap-3">
@@ -135,9 +157,49 @@ function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Right Side */}
           <div className=" w-[50%] h-max flex flex-col gap-4 bg-white rounded-lg py-4 px-3">
             <div className=" w-full h-max flex justify-between px-3">
               <p className=" font-monaMedium text-[18px]">Portfolio Trends</p>
+              <CustomSelect
+                options={options}
+                className="w-[170px]" // Optional additional styles
+              />
+            </div>
+            <div className=" w-full h-max flex gap-2">
+              {/* Button List */}
+              <div className=" w-max h-max flex flex-col gap-2">
+                <button
+                  className={isActive ? "active-blur-btn" : "inactive-blur-btn"}
+                  onClick={toggleButtonState} // Toggle the state when clicked
+                >
+                  <div className="bg-[#896CFF]">
+                    <IoPieChartOutline size={18} />
+                  </div>
+                </button>
+                <button
+                  className="inactive-blur-btn" // Toggle the state when clicked
+                >
+                  <div className="">
+                    <LuSave size={18} />
+                  </div>
+                </button>
+                <button
+                  className="inactive-blur-btn" // Toggle the state when clicked
+                >
+                  <div className="">
+                    <ImEmbed size={18} />
+                  </div>
+                </button>
+                <button
+                  className="inactive-blur-btn" // Toggle the state when clicked
+                >
+                  <div className="">
+                    <IoShareSocialOutline size={18} />
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
