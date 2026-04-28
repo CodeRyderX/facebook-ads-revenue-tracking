@@ -1,0 +1,2333 @@
+{
+  "name": "Meta API -> Airtable",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/act_637535165384600/insights",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "ad_id, ad_name, campaign_id, campaign_name, spend, impressions, clicks"
+            },
+            {
+              "name": "date_preset",
+              "value": "yesterday"
+            },
+            {
+              "name": "level",
+              "value": "ad"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2656,
+        720
+      ],
+      "id": "d0636e09-55e8-4e42-913f-7481faa773cb",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "mWkPFfich8uP9YhM",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4b12e494-3003-4d59-8e88-6bce91b2887f",
+              "leftValue": "={{ $json.data.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2448,
+        720
+      ],
+      "id": "e0d06bc9-ef8b-4c04-acf7-959881ece60c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVZjyl6QVJBhEYW",
+          "mode": "list",
+          "cachedResultName": "Campaigns",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblVZjyl6QVJBhEYW"
+        },
+        "filterByFormula": "={Facebook Campaign ID} = \"{{ $json.campaign_id }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1696,
+        448
+      ],
+      "id": "b15864a4-e568-4a2b-968c-72564a4ed183",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2176,
+        704
+      ],
+      "id": "f9f2650c-49ea-45d8-8e36-a5e238938951",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f20c661f-8647-44fb-b198-f4c97b0ee7e7",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1520,
+        448
+      ],
+      "id": "5d3a8dd9-0bba-4a76-a5e0-f0fa65d7d727",
+      "name": "If Campaign exists?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVZjyl6QVJBhEYW",
+          "mode": "list",
+          "cachedResultName": "Campaigns",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblVZjyl6QVJBhEYW"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Campaign Name": "={{ $('Loop Over Items').item.json.campaign_name }}",
+            "Status": "Active"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Campaign Name",
+              "displayName": "Campaign Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Facebook Campaign ID",
+              "displayName": "Facebook Campaign ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "GHL Campaign Tag",
+              "displayName": "GHL Campaign Tag",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign Label",
+              "displayName": "Campaign Label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1% Signals - UK",
+                  "value": "1% Signals - UK"
+                },
+                {
+                  "name": "Property Campaign B",
+                  "value": "Property Campaign B"
+                },
+                {
+                  "name": "Property Campaign A",
+                  "value": "Property Campaign A"
+                },
+                {
+                  "name": "QA Leads - Dec 2025 - ABO",
+                  "value": "QA Leads - Dec 2025 - ABO"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Ended",
+                  "value": "Ended"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Total Leads",
+              "displayName": "Total Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Qualified",
+              "displayName": "Total Qualified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Booked",
+              "displayName": "Total Booked",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Showed",
+              "displayName": "Total Showed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Closed",
+              "displayName": "Total Closed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total No Shows",
+              "displayName": "Total No Shows",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Ad Spend",
+              "displayName": "Total Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Cash Collected",
+              "displayName": "Total Cash Collected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ROAS",
+              "displayName": "ROAS",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Lead",
+              "displayName": "Cost per Lead",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Cost per Booked Call",
+              "displayName": "Cost per Booked Call",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Show",
+              "displayName": "Cost per Show",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Close",
+              "displayName": "Cost per Close",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cash per Close",
+              "displayName": "Cash per Close",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Qualified Rate",
+              "displayName": "Qualified Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Booking Rate",
+              "displayName": "Booking Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Show-up Rate",
+              "displayName": "Show-up Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Close-to-Show Ratio",
+              "displayName": "Close-to-Show Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Leads",
+              "displayName": "Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Spend",
+              "displayName": "Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ads",
+              "displayName": "Ads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1312,
+        368
+      ],
+      "id": "0bf22949-f977-4dd5-9d17-f74f65d5dde7",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVZjyl6QVJBhEYW",
+          "mode": "list",
+          "cachedResultName": "Campaigns",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblVZjyl6QVJBhEYW"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Campaign Name": "={{ $('Loop Over Items').item.json.campaign_name }}",
+            "Facebook Campaign ID": "={{ $('Loop Over Items').item.json.campaign_id }}",
+            "Status": "Active",
+            "Campaign Label": "={{ $('Loop Over Items').item.json.campaign_name }}",
+            "Start Date": "={{ $('Loop Over Items').item.json.date_start }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Campaign Name",
+              "displayName": "Campaign Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Facebook Campaign ID",
+              "displayName": "Facebook Campaign ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "GHL Campaign Tag",
+              "displayName": "GHL Campaign Tag",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign Label",
+              "displayName": "Campaign Label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "1% Signals - UK",
+                  "value": "1% Signals - UK"
+                },
+                {
+                  "name": "Property Campaign B",
+                  "value": "Property Campaign B"
+                },
+                {
+                  "name": "Property Campaign A",
+                  "value": "Property Campaign A"
+                },
+                {
+                  "name": "QA Leads - Dec 2025 - ABO",
+                  "value": "QA Leads - Dec 2025 - ABO"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Ended",
+                  "value": "Ended"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Total Leads",
+              "displayName": "Total Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Qualified",
+              "displayName": "Total Qualified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Booked",
+              "displayName": "Total Booked",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Showed",
+              "displayName": "Total Showed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Closed",
+              "displayName": "Total Closed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total No Shows",
+              "displayName": "Total No Shows",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Ad Spend",
+              "displayName": "Total Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Cash Collected",
+              "displayName": "Total Cash Collected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ROAS",
+              "displayName": "ROAS",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Lead",
+              "displayName": "Cost per Lead",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Cost per Booked Call",
+              "displayName": "Cost per Booked Call",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Show",
+              "displayName": "Cost per Show",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Close",
+              "displayName": "Cost per Close",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cash per Close",
+              "displayName": "Cash per Close",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Qualified Rate",
+              "displayName": "Qualified Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Booking Rate",
+              "displayName": "Booking Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Show-up Rate",
+              "displayName": "Show-up Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Close-to-Show Ratio",
+              "displayName": "Close-to-Show Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Leads",
+              "displayName": "Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Spend",
+              "displayName": "Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ads",
+              "displayName": "Ads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1312,
+        560
+      ],
+      "id": "e7dbeaf5-467a-4f0d-9513-3f8d1fda5add",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f20c661f-8647-44fb-b198-f4c97b0ee7e7",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1504,
+        912
+      ],
+      "id": "7d22bb80-50aa-458c-a1da-c877041d420e",
+      "name": "If Campaign exists?1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJOYDGjaBNcu4av",
+          "mode": "list",
+          "cachedResultName": "Ads",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblJOYDGjaBNcu4av"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Status": "Active",
+            "Ad Name": "={{ $('Loop Over Items1').item.json.ad_name }}",
+            "Ad Label": "={{ $('Loop Over Items1').item.json.ad_name }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ad Name",
+              "displayName": "Ad Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Facebook Ad ID",
+              "displayName": "Facebook Ad ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Label",
+              "displayName": "Ad Label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "7k members_N",
+                  "value": "7k members_N"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Ended",
+                  "value": "Ended"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Total Leads",
+              "displayName": "Total Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Qualified",
+              "displayName": "Total Qualified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Ad Spend",
+              "displayName": "Total Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Booked",
+              "displayName": "Total Booked",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Closed",
+              "displayName": "Total Closed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Showed",
+              "displayName": "Total Showed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Cash Collected",
+              "displayName": "Total Cash Collected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Lead",
+              "displayName": "Cost per Lead",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ROAS",
+              "displayName": "ROAS",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Booked Call",
+              "displayName": "Cost per Booked Call",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Close",
+              "displayName": "Cost per Close",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Show",
+              "displayName": "Cost per Show",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Qualified Rate",
+              "displayName": "Qualified Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Booking Rate",
+              "displayName": "Booking Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Show-up Rate",
+              "displayName": "Show-up Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Close-to-Show Ratio",
+              "displayName": "Close-to-Show Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Leads",
+              "displayName": "Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Spend",
+              "displayName": "Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1296,
+        832
+      ],
+      "id": "8381d55d-e441-499f-9230-f977785a37b5",
+      "name": "Update record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl1AGQzkouuwtyLA",
+          "mode": "list",
+          "cachedResultName": "Ad Spend",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tbl1AGQzkouuwtyLA"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now.toLocal().format('D') }}",
+            "Ad Spend": "={{ $('Loop Over Items1').item.json.spend }}",
+            "Impressions": "={{ $('Loop Over Items1').item.json.impressions }}",
+            "Clicks": "={{ $('Loop Over Items1').item.json.clicks }}",
+            "Campaign": "={{ $('Loop Over Items1').item.json.campaign_name }}",
+            "Ads": "={{ $('Loop Over Items1').item.json.ad_name }}",
+            "Facebook Ad ID": "={{ $('Loop Over Items1').item.json.campaign_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Spend Date",
+              "displayName": "Spend Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ads",
+              "displayName": "Ads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Facebook Ad ID",
+              "displayName": "Facebook Ad ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Spend",
+              "displayName": "Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Impressions",
+              "displayName": "Impressions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Clicks",
+              "displayName": "Clicks",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1104,
+        832
+      ],
+      "id": "4dee1e9f-f610-4952-962a-23a81770fcc6",
+      "name": "Create an Ad Spend record3",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1904,
+        432
+      ],
+      "id": "4f9de675-0d1b-4c98-b295-eb8da7efd674",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJOYDGjaBNcu4av",
+          "mode": "list",
+          "cachedResultName": "Ads",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblJOYDGjaBNcu4av"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ad Name": "={{ $('Loop Over Items1').item.json.ad_name }}",
+            "Facebook Ad ID": "={{ $('Loop Over Items1').item.json.ad_id }}",
+            "Campaign": "={{ $('Loop Over Items1').item.json.campaign_name }}",
+            "Ad Label": "={{ $('Loop Over Items1').item.json.ad_name }}",
+            "Status": "Active"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ad Name",
+              "displayName": "Ad Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Facebook Ad ID",
+              "displayName": "Facebook Ad ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Label",
+              "displayName": "Ad Label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "7k members_N",
+                  "value": "7k members_N"
+                },
+                {
+                  "name": "Hook 2 - Samir 6 150k loss_N",
+                  "value": "Hook 2 - Samir 6 150k loss_N"
+                },
+                {
+                  "name": "Hook 2 - Samir 6 150k loss",
+                  "value": "Hook 2 - Samir 6 150k loss"
+                },
+                {
+                  "name": "Video 6 - Idea 7 (3m t7awlo t3mlo masare)",
+                  "value": "Video 6 - Idea 7 (3m t7awlo t3mlo masare)"
+                },
+                {
+                  "name": "انسى التداول",
+                  "value": "انسى التداول"
+                },
+                {
+                  "name": "1% League Ad Vertical – Copy",
+                  "value": "1% League Ad Vertical – Copy"
+                },
+                {
+                  "name": "C3",
+                  "value": "C3"
+                },
+                {
+                  "name": "Hook 1 - Samir 1 re edit_N",
+                  "value": "Hook 1 - Samir 1 re edit_N"
+                },
+                {
+                  "name": "Hook 1 - Samir 1 re edit",
+                  "value": "Hook 1 - Samir 1 re edit"
+                },
+                {
+                  "name": "Ras Melak new AB",
+                  "value": "Ras Melak new AB"
+                },
+                {
+                  "name": "Hook 4 - Samir 8_N",
+                  "value": "Hook 4 - Samir 8_N"
+                },
+                {
+                  "name": "Ad 7k",
+                  "value": "Ad 7k"
+                },
+                {
+                  "name": "7k members updated",
+                  "value": "7k members updated"
+                },
+                {
+                  "name": "Hook 4 - Samir 8",
+                  "value": "Hook 4 - Samir 8"
+                },
+                {
+                  "name": "Ad 2",
+                  "value": "Ad 2"
+                },
+                {
+                  "name": "Reel 07",
+                  "value": "Reel 07"
+                },
+                {
+                  "name": "OPL _1",
+                  "value": "OPL _1"
+                },
+                {
+                  "name": "انت شو رأيك؟",
+                  "value": "انت شو رأيك؟"
+                },
+                {
+                  "name": "Ad 3",
+                  "value": "Ad 3"
+                },
+                {
+                  "name": "Ad 4",
+                  "value": "Ad 4"
+                },
+                {
+                  "name": "أنت شو رأيك",
+                  "value": "أنت شو رأيك"
+                },
+                {
+                  "name": "أنت شو رأيك؟",
+                  "value": "أنت شو رأيك؟"
+                },
+                {
+                  "name": "New 01",
+                  "value": "New 01"
+                },
+                {
+                  "name": "Ad 5",
+                  "value": "Ad 5"
+                },
+                {
+                  "name": "Ad 03",
+                  "value": "Ad 03"
+                },
+                {
+                  "name": "Ad 02",
+                  "value": "Ad 02"
+                },
+                {
+                  "name": "Ad 04",
+                  "value": "Ad 04"
+                },
+                {
+                  "name": "Ad 05",
+                  "value": "Ad 05"
+                },
+                {
+                  "name": "حابب تستثمر بعقار أو بالأسهم؟",
+                  "value": "حابب تستثمر بعقار أو بالأسهم؟"
+                },
+                {
+                  "name": "اديه صرت خسران بالتداول؟",
+                  "value": "اديه صرت خسران بالتداول؟"
+                },
+                {
+                  "name": "15,000% - Reel",
+                  "value": "15,000% - Reel"
+                },
+                {
+                  "name": "اللى ما اتعلمته بالمدارس",
+                  "value": "اللى ما اتعلمته بالمدارس"
+                },
+                {
+                  "name": "ياتغير ياتعدل",
+                  "value": "ياتغير ياتعدل"
+                },
+                {
+                  "name": "Reel 13",
+                  "value": "Reel 13"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Active",
+                  "value": "Active"
+                },
+                {
+                  "name": "Ended",
+                  "value": "Ended"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Total Leads",
+              "displayName": "Total Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Qualified",
+              "displayName": "Total Qualified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Ad Spend",
+              "displayName": "Total Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Booked",
+              "displayName": "Total Booked",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Closed",
+              "displayName": "Total Closed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Showed",
+              "displayName": "Total Showed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Cash Collected",
+              "displayName": "Total Cash Collected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Lead",
+              "displayName": "Cost per Lead",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Qualified Lead",
+              "displayName": "Cost per Qualified Lead",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ROAS",
+              "displayName": "ROAS",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Booked Call",
+              "displayName": "Cost per Booked Call",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Close",
+              "displayName": "Cost per Close",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cost per Show",
+              "displayName": "Cost per Show",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Qualified Rate",
+              "displayName": "Qualified Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Booking Rate",
+              "displayName": "Booking Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Show-up Rate",
+              "displayName": "Show-up Rate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Close-to-Show Ratio",
+              "displayName": "Close-to-Show Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Leads",
+              "displayName": "Leads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Ad Spend",
+              "displayName": "Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1296,
+        1040
+      ],
+      "id": "bf714f58-2627-4a97-8379-d2279589e87a",
+      "name": "Create a record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl1AGQzkouuwtyLA",
+          "mode": "list",
+          "cachedResultName": "Ad Spend",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tbl1AGQzkouuwtyLA"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now.toLocal().format('yyyy-MM-dd') }}",
+            "Campaign": "={{ $('Loop Over Items1').item.json.campaign_name }}",
+            "Ads": "={{ $('Loop Over Items1').item.json.ad_name }}",
+            "Facebook Ad ID": "={{ $('Loop Over Items1').item.json.ad_id }}",
+            "Ad Spend": "={{ $('Loop Over Items1').item.json.spend }}",
+            "Impressions": "={{ $('Loop Over Items1').item.json.impressions }}",
+            "Clicks": "={{ $('Loop Over Items1').item.json.clicks }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Spend Date",
+              "displayName": "Spend Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ads",
+              "displayName": "Ads",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Facebook Ad ID",
+              "displayName": "Facebook Ad ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad Spend",
+              "displayName": "Ad Spend",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Impressions",
+              "displayName": "Impressions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Clicks",
+              "displayName": "Clicks",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1088,
+        1040
+      ],
+      "id": "de9bb270-5649-46d7-af17-42eb68fb1913",
+      "name": "Create a record2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJOYDGjaBNcu4av",
+          "mode": "list",
+          "cachedResultName": "Ads",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblJOYDGjaBNcu4av"
+        },
+        "filterByFormula": "={Facebook Ad ID} = \"{{ $json.ad_id }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1696,
+        912
+      ],
+      "id": "0239b858-830d-49c4-99c8-255375e4542f",
+      "name": "Search records1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1920,
+        896
+      ],
+      "id": "17e2172a-95f6-4d5f-9835-3e5e098caf0f",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2864,
+        720
+      ],
+      "id": "001d42d0-851c-4803-b35d-51db22a3a0a6",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If Campaign exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Campaign exists?": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Campaign exists?1": {
+      "main": [
+        [
+          {
+            "node": "Update record1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record1": {
+      "main": [
+        [
+          {
+            "node": "Create an Ad Spend record3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record1": {
+      "main": [
+        [
+          {
+            "node": "Create a record2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records1": {
+      "main": [
+        [
+          {
+            "node": "If Campaign exists?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Search records1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an Ad Spend record3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/London",
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c682114a-60b1-4b0f-b246-0745847eee8e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b5cc5b2caccd1e0a310472b79c507ee314f5bb6728c3e83e59d100aab3d1571e"
+  },
+  "id": "pTM8Jv6EbYN0NJ5N",
+  "tags": []
+}
