@@ -1,0 +1,562 @@
+{
+  "name": "Cash Collected Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9d752aa4-f309-477d-aa16-cc9961fd7096",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "079ba1c1-f968-4bde-ab2e-e608ace5ca14",
+      "name": "Webhook",
+      "webhookId": "9d752aa4-f309-477d-aa16-cc9961fd7096"
+    },
+    {
+      "parameters": {
+        "jsCode": "const TAG_PAYMENT_MAP = {\n  \"academy spot reservation $100 - manual payment\": {\n    amount: 100, currency: \"USD\",\n    payment_type: \"Deposit\", product: \"Academy Spot Reservation\"\n  },\n  \"academy spot reservation $300 - manual payment\": {\n    amount: 300, currency: \"USD\",\n    payment_type: \"Deposit\", product: \"Academy Spot Reservation\"\n  },\n  \"academy spot reservation $50 - manual payment\": {\n    amount: 50, currency: \"USD\",\n    payment_type: \"Deposit\", product: \"Academy Spot Reservation\"\n  },\n  \"advanced course partial payment $500 - manual payment\": {\n    amount: 500, currency: \"USD\",\n    payment_type: \"Installment\", product: \"Advanced Course\"\n  },\n  \"beginner course $399 customer - manual payment\": {\n    amount: 399, currency: \"USD\",\n    payment_type: \"Full Payment\", product: \"Beginner Course\"\n  },\n  \"advance course 2nd payment - $499 - manual payment\": {\n    amount: 499, currency: \"USD\",\n    payment_type: \"Installment\", product: \"Advanced Course\"\n  },\n  \"advanced course $999 customer - manual payment\": {\n    amount: 999, currency: \"USD\",\n    payment_type: \"Full Payment\", product: \"Advanced Course\"\n  }\n};\n\nconst contactId = $input.item.json.body.contact_id;\nconst tagString = $input.item.json.body.tags || \"\";\n\nconst allTags = tagString.split(\",\").map(t => t.trim().toLowerCase());\nconst matchedTags = allTags.filter(t => TAG_PAYMENT_MAP[t]);\n\nif (matchedTags.length === 0) {\n  return [{ json: { skip: true } }];\n}\n\nreturn matchedTags.map(tag => {\n  const match = TAG_PAYMENT_MAP[tag];\n  const dedup_key = `${contactId}_${tag.replace(/\\s+/g, '_').substring(0, 80)}`;\n  return {\n    json: {\n      dedup_key,\n      ghl_contact_id: contactId,\n      contact_name: $input.item.json.body.full_name,\n      email: $input.item.json.body.email,\n      tag_added: tag,\n      amount: match.amount,\n      currency: match.currency,\n      payment_type: match.payment_type,\n      product: match.product,\n      payment_date: new Date().toISOString(),\n      status: \"Collected\",\n      payment_source: \"GHL Tag - Manual\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ef0c080b-cbec-4ac8-8727-483bf4277e3b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblevDCN71vXygMBk",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblevDCN71vXygMBk"
+        },
+        "filterByFormula": "={GHL Contact ID} = \"{{ $json.ghl_contact_id }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "13411674-f7ac-489d-8754-9e97285dde8b",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblevDCN71vXygMBk",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblevDCN71vXygMBk"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Cash Collected": "={{ ($node[\"Get a record\"].json.fields[\"Cash Collected\"] || 0) + $node[\"Code in JavaScript\"].json.amount }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ad",
+              "displayName": "Ad",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Not Qualified",
+                  "value": "Not Qualified"
+                },
+                {
+                  "name": "Booked",
+                  "value": "Booked"
+                },
+                {
+                  "name": "Showed",
+                  "value": "Showed"
+                },
+                {
+                  "name": "No Show",
+                  "value": "No Show"
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                },
+                {
+                  "name": "Lost",
+                  "value": "Lost"
+                },
+                {
+                  "name": "Ongoing Convo",
+                  "value": "Ongoing Convo"
+                },
+                {
+                  "name": "No Answer",
+                  "value": "No Answer"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Qualification",
+              "displayName": "Qualification",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Not Qualified",
+                  "value": "Not Qualified"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Booked Call Date",
+              "displayName": "Booked Call Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Outcome",
+              "displayName": "Call Outcome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Showed",
+                  "value": "Showed"
+                },
+                {
+                  "name": "No Show",
+                  "value": "No Show"
+                },
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Closed Status",
+              "displayName": "Closed Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Won",
+                  "value": "Won"
+                },
+                {
+                  "name": "Lost",
+                  "value": "Lost"
+                },
+                {
+                  "name": "Open",
+                  "value": "Open"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cash Collected",
+              "displayName": "Cash Collected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Notes",
+              "displayName": "Call Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "GHL Contact ID",
+              "displayName": "GHL Contact ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Is Qualified",
+              "displayName": "Is Qualified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is Booked",
+              "displayName": "Is Booked",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is Showed",
+              "displayName": "Is Showed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is Closed",
+              "displayName": "Is Closed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is No Answer",
+              "displayName": "Is No Answer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is Lost",
+              "displayName": "Is Lost",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is No Show",
+              "displayName": "Is No Show",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Is Ongoing",
+              "displayName": "Is Ongoing",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        0
+      ],
+      "id": "ca9b9222-6e44-4b82-b7fa-f5ffa8e3899f",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appNcmnyA6GpnzlcX",
+          "mode": "list",
+          "cachedResultName": "Marketing Board",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblevDCN71vXygMBk",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appNcmnyA6GpnzlcX/tblevDCN71vXygMBk"
+        },
+        "id": "={{ $json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b172fa4a-f604-4763-a0ad-fdc814c92c28",
+      "name": "Get a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "JJqXRtDPIJtRxIsN",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Get a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a record": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8d145d35-c6a4-4771-8eae-e183b4386092",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b5cc5b2caccd1e0a310472b79c507ee314f5bb6728c3e83e59d100aab3d1571e"
+  },
+  "id": "VepwhYfV423NBJzf",
+  "tags": []
+}
