@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "image": "https://i.pinimg.com/474x/de/7b/ce/de7bce17e99f0a8af03ad9379c1d7078.jpg",
+        "title": "Sporting CP vs Arsenal: Who will win?",
+        "percentageChance": 55,
+        "tradeVolume": "69,230,902"
+    },
+    {
+        "id": 2,
+        "image": "https://i.pinimg.com/474x/49/05/6d/49056d66ab7fbe7c386a154e1b942825.jpg",
+        "title": "Who will be Trumps Commissioner of Finance?",
+        "percentageChance": 45,
+        "tradeVolume": " 9,230,902"
+    },
+    {
+        "id": 3,
+        "image": "https://i.pinimg.com/474x/d0/af/7c/d0af7c772b055097b0c7f242ba41e6c1.jpg",
+        "title": "Where will Putin launch Russia's next missile?",
+        "percentageChance": 67,
+        "tradeVolume": "6,230,902"
+    },
+    {
+        "id": 4,
+        "image": "https://i.pinimg.com/474x/0f/de/ce/0fdece37ce4214c9c2166deec6049bf6.jpg",
+        "title": "Will Bitcoin reach 110K before February 2025?",
+        "percentageChance": 78,
+        "tradeVolume": "6,230,902"
+    },
+    {
+        "id": 5,
+        "image": "https://i.pinimg.com/474x/de/7b/ce/de7bce17e99f0a8af03ad9379c1d7078.jpg",
+        "title": "Where will Putin launch Russia's next missile?",
+        "percentageChance": 67,
+        "tradeVolume": "6,230,902"
+    },
+    {
+        "id": 6,
+        "image": "https://i.pinimg.com/474x/de/7b/ce/de7bce17e99f0a8af03ad9379c1d7078.jpg",
+        "title": "Where will Putin launch Russia's next missile?",
+        "percentageChance": 67,
+        "tradeVolume": "6,230,902"
+    }
+]

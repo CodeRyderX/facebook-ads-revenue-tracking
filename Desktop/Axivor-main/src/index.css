@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.navbar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
+@font-face {
+  font-family: 'mona';
+  src: url('/src/assets/fonts/mona-sans/fonts/ttf/MonaSans-Regular.ttf')
+    format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'monaLight';
+  src: url('/src/assets/fonts/mona-sans/fonts/ttf/MonaSans-Light.ttf')
+    format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'monaMedium';
+  src: url('/src/assets/fonts/mona-sans/fonts/ttf/MonaSans-Medium.ttf')
+    format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'monaSemi';
+  src: url('/src/assets/fonts/mona-sans/fonts/ttf/MonaSans-SemiBold.ttf')
+    format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'monaBold';
+  src: url('/src/assets/fonts/mona-sans/fonts/ttf/MonaSans-Bold.ttf')
+    format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'monaCondensedSemi';
+  src: url('/src/assets/fonts/mona-sans/fonts/ttf/MonaSansCondensed-SemiBold.ttf')
+    format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+
+.active-nav {
+  @apply w-max h-max bg-[#f1f1f1] rounded-full flex gap-0.5 py-2 px-3 text-[13px] font-monaMedium text-black;
+}
+
+.active-nav > div {
+  @apply flex;
+}
+
+/*Live Market Buttons */
+.active-market-btn {
+  @apply w-max h-max bg-white rounded-full text-[12px] text-[#555555] py-2 px-3 font-monaSemi focus:outline-none
+}
+
+.market-btn {
+  @apply w-max h-max bg-white rounded-full text-[12px] text-[#6E6E6E] py-2 px-3 whitespace-nowrap focus:outline-none
+}
+
+/* Hide the scrollbar but allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+
+/* Trending and Leaderboard Buttons */
+.active-blur-btn {
+  @apply w-max h-max p-0.5 rounded-full border border-[#D9D9D9]
+}
+
+.active-blur-btn > div {
+  @apply w-max h-max rounded-full p-1 text-white
+}
+
+.inactive-blur-btn {
+  @apply w-max h-max p-0.5 rounded-full border border-[#D9D9D9]
+}
+
+.inactive-blur-btn > div {
+  @apply w-max h-max rounded-full p-1 text-[#555555] bg-white
+}
+
+
+/* List and Grid View Buttons */
+.list-inactive-btn {
+  @apply  w-[50%] h-full rounded-l-lg flex items-center justify-center
+}
+
+.list-active-btn {
+  @apply  w-[50%] h-full bg-[#FFAD16] rounded-l-lg flex items-center justify-center text-white
+}
+
+.grid-inactive-btn {
+  @apply  w-[50%] h-full rounded-r-lg flex items-center justify-center
+}
+
+.grid-active-btn {
+  @apply  w-[50%] h-full bg-[#FF7457] rounded-r-lg flex items-center justify-center text-white
+}
+
+.active-list-section {
+  @apply  w-[98%] h-max flex flex-col bg-white rounded-t-xl items-center
+}
+
+.inactive-list-section {
+  @apply  w-[98%] h-max flex-col bg-white rounded-t-xl items-center hidden
+}
+
+.active-grid-section {
+  @apply  w-[98%] h-max grid grid-cols-1 md:grid-cols-4 gap-x-3 gap-y-4
+}
+
+.inactive-grid-section {
+  @apply  w-[98%] h-max grid grid-cols-1 md:grid-cols-4 gap-x-3 gap-y-4 hidden
+}
+
+.nav {
+  @apply w-max h-max bg-[#f1f1f1] rounded-full flex gap-0.5 py-2 px-3 text-[13px] font-monaMedium text-black text-opacity-50;
+}
+
+.nav > div {
+  @apply hidden;
+}
+
+
+
+.social-links {
+  @apply w-max h-max rounded-full p-2 bg-[#e0e0e0]  text-white transition-all duration-500;
+}
+
+/* Footer Button Styles */
+
+.footer-links {
+  @apply w-max h-max flex flex-col text-black text-opacity-50 hover:text-opacity-100 transition-all duration-500 text-[14px];
+}
+
+.footer-links > div {
+  @apply w-[0px] h-[1.5px];
+}
+
+.footer-links:hover > div {
+  @apply w-full h-[1.5px] bg-black transition-all duration-500;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
